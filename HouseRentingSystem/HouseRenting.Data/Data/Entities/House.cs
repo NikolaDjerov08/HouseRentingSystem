@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using HouseRentingSystem.Data.Data.Entities;
 
 namespace HouseRentingSystem.Data.Entities
 {
@@ -33,7 +34,7 @@ namespace HouseRentingSystem.Data.Entities
         public int CategoryId { get; set; }
         public Category Category { get; init; } = null!;
 
-        public Guid AgentId { get; set; }
+        public int AgentId { get; set; }
         public Agent Agent { get; init; } = null!;
 
         public string? RenterId { get; set; }
