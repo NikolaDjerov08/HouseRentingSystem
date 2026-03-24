@@ -14,5 +14,13 @@ namespace HouseRentingSystem.Data.Data
             public const int AddressMaxLength = 150;
             public const int DescribtionMaxLength = 500;
         }
+        public class Category
+        {
+            public const int NameMaxLength = 50;
+        }
+        public class Agent
+        {
+            public const int PhoneNumberMaxLength = 15;
+        }
     }
 }

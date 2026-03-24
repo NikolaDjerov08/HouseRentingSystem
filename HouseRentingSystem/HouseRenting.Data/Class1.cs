@@ -11,7 +11,7 @@ using static HouseRentingSystem.Data.Data.DataConstants.House;
 
 namespace HouseRenting.Data
 {
-    public class Houses
+    public class Class1
     {
         [Key]
         public int Id { get; set; }
@@ -29,11 +29,9 @@ namespace HouseRenting.Data
         public string Describtion { get; set; }
         [Required]
         public string ImageUrl { get; set; }
-        [MaxLength(2000)]
         [Required]
         [Column(TypeName = "decimal(12, 3")]
         public decimal PricePerMonth { get; set; }
-
         public int CategoryId { get; set; }
         public Category Category { get; init; } = null;
         public int AgentId { get; set; }
