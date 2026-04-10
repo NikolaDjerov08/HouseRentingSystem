@@ -1,0 +1,19 @@
+﻿@model HouseDetailViewModel
+
+@{
+    ViewBag.Title = "House Details";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+<hr />
+
+<div class="card text-center mx-auto" style="width: 25rem;">
+    <img class="card-img-top" src="@Model.ImageUrl" alt="House Image">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Name</h5>
+        <p class="card-text">@Model.Description</p>
+        <p class="card-text">@Model.Address</p>
+        <p class="card-text">Price per month€: @Model.Price</p>
+        <p class="card-text">House is offered by @Model.CreatedBy</p>
+    </div>
+</div>
