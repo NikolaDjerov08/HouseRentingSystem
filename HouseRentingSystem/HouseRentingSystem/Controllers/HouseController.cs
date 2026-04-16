@@ -1,8 +1,12 @@
-﻿using HouseRentingSystem.Data.Entities;
+﻿using HouseRentingSystem.Data.Data;
+using HouseRentingSystem.Data.Entities;
 using HouseRentingSystem.Models;
 using HouseRentingSystem.Models.House;
+using HouseRentingSystem.Models.House.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HouseRentingSystem.Controllers
 {
@@ -17,6 +21,21 @@ namespace HouseRentingSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> AllHouses()
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var houses = await context
+                .Houses
+                .AsNoTracking()
+                .Select(h => new HouseViewModel()
+                {
+                    Address = h.Address,
+                    Id = h.Id,
+                    ImageUrl = h.ImageUrl,
+                    Name = h.Title,
+                    CurrentUserIsOwner = h.AgentId == currentUserId
+                }).ToListAsync();
+            ViewBag.Title = "All Houses";
+            return View(houses);
+
             var housesViewModel = await context.Houses
             .AsNoTracking()
             .Select(h => new HouseViewModel
@@ -54,26 +73,39 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public async Task<IActionResult> CreateHouse()
         {
-            var houseCategories = await context.Categories
+            List<CategoryViewModel> houseCategories = await context.Categories
             .AsNoTracking()
-            .Select(c => c.Name)
-            .ToListAsync();
-            var listOfCategories = new HouseFormViewModel
+            .Select(c => new CategoryViewModel
             {
-                Categories = houseCategories
-            };
-
-            return View(listOfCategories);
+                Id = c.Id,
+                Name = c.Name,
+            })
+            .ToListAsync();
+            return View(houseCategories);
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateHouse(HouseFormViewModel model)
         {
+
+            var houseCategories = await context.Categories
+                .AsNoTracking()
+                .Select(c => new CategoryViewModel()
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                })
+                .ToListAsync();
+
             if (!ModelState.IsValid)
             {
+
+                model.Categories = houseCategories;
                 return View(model);
             }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             bool addressExists = await context.Houses
                 .AnyAsync(h => h.Address.ToLower() == model.Address.ToLower());
@@ -91,13 +123,34 @@ namespace HouseRentingSystem.Controllers
                 Description = model.Description,
                 ImageUrl = model.ImageUrl,
                 PricePerMonth = model.PricePerMonth,
-                Category = model.Category,
+                CategoryId = model.SelectedCategoryId,
+                AgentId = userId
             };
 
             context.Houses.Add(newHouse);
             await context.SaveChangesAsync();
 
-            return RedirectToAction("AllHouses");
+            return RedirectToAction(nameof(AllHouses));
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> MyHouses()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var houses = context.Houses
+                .Where(h => h.AgentId == userId)
+                .Select(h => new HouseViewModel
+                {
+                    Address = h.Address,
+                    ImageUrl = h.ImageUrl,
+                    Name = h.Title,
+                    Id = h.Id
+                })
+                .ToListAsync();
+
+            return View(nameof(AllHouses), houses);
         }
     }
 }

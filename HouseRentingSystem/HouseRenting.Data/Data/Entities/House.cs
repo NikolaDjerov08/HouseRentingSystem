@@ -34,10 +34,10 @@ namespace HouseRentingSystem.Data.Entities
         public int CategoryId { get; set; }
         public Category Category { get; init; } = null!;
 
-        public int AgentId { get; set; }
-        public Agent Agent { get; init; } = null!;
+        public string AgentId { get; set; }
+        public ApplicationUser Agent { get; init; } = null!;
 
         public string? RenterId { get; set; }
-        public IdentityUser? Renter { get; set; }
+        public ApplicationUser? Renter { get; set; }
     }
 }

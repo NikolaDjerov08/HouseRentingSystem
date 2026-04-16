@@ -54,10 +54,10 @@
 
                         <!-- Category -->
                          <div class="mb-3">
-                            <select asp-for="Category" class="form-label">
-                                @foreach (var options in Model.Categories)
+                            <select asp-for="SelectedCategoryId" class="form-label">
+                                @foreach (var product in Model.Categories)
                                 {
-                                    <option value="@options">@options</option>
+                                    <option value="@product.Id">@product.Name</option>
                                 }
                             </select> 
                         </div> 

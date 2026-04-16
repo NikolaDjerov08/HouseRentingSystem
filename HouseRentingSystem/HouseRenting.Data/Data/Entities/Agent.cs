@@ -14,7 +14,7 @@ namespace HouseRentingSystem.Data.Data.Entities
     {
         public const int PhoneNumberMaxLength = 15;
 
-        public Guid Id { get; init; } = Guid.NewGuid();
+        public int Id { get; init; }
 
         [Required]
         [MaxLength(PhoneNumberMaxLength)]

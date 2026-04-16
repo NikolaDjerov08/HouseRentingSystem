@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HouseRentingSystem.Models.House.Helpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace HouseRentingSystem.Models.House
 {
@@ -26,8 +27,7 @@ namespace HouseRentingSystem.Models.House
         public decimal PricePerMonth { get; set; }
 
         [Required(ErrorMessage = "Category is required")]
-        public List<Category> Categories { get; set; } 
-        [Required(ErrorMessage = "A categoty is reqiored")]
-        public Category Category { get; set; }
+        public List<CategoryViewModel>? Categories { get; set; }  
+        public int SelectedCategoryId { get; set; }
     }
 }
