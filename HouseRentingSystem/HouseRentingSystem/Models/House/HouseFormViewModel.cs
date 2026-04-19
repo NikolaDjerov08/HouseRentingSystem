@@ -27,7 +27,8 @@ namespace HouseRentingSystem.Models.House
         public decimal PricePerMonth { get; set; }
 
         [Required(ErrorMessage = "Category is required")]
-        public List<CategoryViewModel>? Categories { get; set; }  
+        public List<CategoryViewModel>? Categories { get; set; }
         public int SelectedCategoryId { get; set; }
+
     }
 }

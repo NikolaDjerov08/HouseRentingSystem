@@ -21,21 +21,7 @@ namespace HouseRentingSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> AllHouses()
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var houses = await context
-                .Houses
-                .AsNoTracking()
-                .Select(h => new HouseViewModel()
-                {
-                    Address = h.Address,
-                    Id = h.Id,
-                    ImageUrl = h.ImageUrl,
-                    Name = h.Title,
-                    CurrentUserIsOwner = h.AgentId == currentUserId
-                }).ToListAsync();
-            ViewBag.Title = "All Houses";
-            return View(houses);
-
+            var currentUsersId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var housesViewModel = await context.Houses
             .AsNoTracking()
             .Select(h => new HouseViewModel
@@ -43,9 +29,11 @@ namespace HouseRentingSystem.Controllers
                 Id = h.Id,
                 Name = h.Title,
                 Address = h.Address,
-                ImageUrl = h.ImageUrl
+                ImageUrl = h.ImageUrl,
+                CurentUserIsOwner = h.AgentId == currentUsersId
             })
             .ToListAsync();
+            ViewBag.Title = "All houses";
             return View(housesViewModel);
         }
         [HttpGet]
@@ -73,7 +61,7 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public async Task<IActionResult> CreateHouse()
         {
-            List<CategoryViewModel> houseCategories = await context.Categories
+            List<CategoryViewModel> ListOfCategories = await context.Categories
             .AsNoTracking()
             .Select(c => new CategoryViewModel
             {
@@ -81,6 +69,10 @@ namespace HouseRentingSystem.Controllers
                 Name = c.Name,
             })
             .ToListAsync();
+            var houseCategories = new HouseFormViewModel()
+            {
+                Categories = ListOfCategories
+            };
             return View(houseCategories);
         }
 
@@ -112,6 +104,7 @@ namespace HouseRentingSystem.Controllers
 
             if (addressExists)
             {
+                model.Categories = houseCategories;
                 ModelState.AddModelError("Address", "This address is already registered");
                 return View(model);
             }
@@ -146,10 +139,11 @@ namespace HouseRentingSystem.Controllers
                     Address = h.Address,
                     ImageUrl = h.ImageUrl,
                     Name = h.Title,
-                    Id = h.Id
+                    Id = h.Id,
+                    CurentUserIsOwner = true
                 })
                 .ToListAsync();
-
+            ViewBag.Title = "My houses";
             return View(nameof(AllHouses), houses);
         }
     }
