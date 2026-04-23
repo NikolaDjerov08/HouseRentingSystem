@@ -10,10 +10,17 @@ namespace HouseRentingSystem.Controllers
         {
             return View();
         }
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+
+        public IActionResult Error(int statusCode)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (statusCode == 401 || statusCode == 404)
+            {
+                ViewBag.StatusCode = statusCode;
+                return View("ErrorStatus");
+            }
+
+            // fallback (still needed for stability)
+            return View("ErrorStatus");
         }
     }
 }

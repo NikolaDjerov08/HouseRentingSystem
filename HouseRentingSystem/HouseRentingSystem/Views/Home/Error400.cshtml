@@ -1,0 +1,131 @@
+﻿@{
+    ViewData["Title"] = "Server Error";
+}
+
+<div class="server-page">
+    <div class="server-card">
+        <div class="server-icon">💥</div>
+        <div class="server-code">500</div>
+        <h1>Internal Server Error</h1>
+        <p>
+            Something went wrong on our side while processing your request.
+            Please try again in a moment.
+        </p>
+        <div class="server-actions">
+            <a asp-controller="Home" asp-action="Index" class="btn-home">Go Home</a>
+            <button class="btn-retry" onclick="location.reload()">Try Again</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: radial-gradient(circle at top left, rgba(239, 68, 68, 0.25), transparent 30%), radial-gradient(circle at bottom right, rgba(249, 115, 22, 0.18), transparent 30%), linear-gradient(135deg, #111827, #1f2937);
+        color: #fff;
+    }
+
+    .server-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .server-card {
+        width: 100%;
+        max-width: 720px;
+        text-align: center;
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.12);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        padding: 52px 34px;
+        box-shadow: 0 24px 70px rgba(0,0,0,0.4);
+    }
+
+    .server-icon {
+        font-size: 62px;
+        margin-bottom: 12px;
+    }
+
+    .server-code {
+        font-size: 96px;
+        font-weight: 900;
+        color: #f87171;
+        line-height: 1;
+        margin-bottom: 16px;
+    }
+
+    h1 {
+        margin: 0 0 14px 0;
+        font-size: 38px;
+        font-weight: 800;
+    }
+
+    p {
+        margin: 0 auto 30px auto;
+        max-width: 560px;
+        font-size: 18px;
+        line-height: 1.7;
+        color: #e5e7eb;
+    }
+
+    .server-actions {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .btn-home,
+    .btn-retry {
+        padding: 13px 22px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .btn-home {
+        background: linear-gradient(135deg, white, black);
+        color: white;
+    }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
+
+    .btn-retry {
+        background: rgba(255,255,255,0.08);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.14);
+    }
+
+        .btn-retry:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.14);
+        }
+
+    @@media (max-width: 600px) {
+        .server-code {
+            font-size: 68px;
+        }
+
+        h1 {
+            font-size: 28px;
+        }
+
+        p {
+            font-size: 16px;
+        }
+    }
+</style>
