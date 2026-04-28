@@ -1,4 +1,5 @@
 ﻿@model HouseFormViewModel
+
 @{
     ViewData["Title"] = "Register New House";
 }
@@ -12,7 +13,9 @@
                 </div>
 
                 <div class="card-body">
-                    <form asp-action="CreateHouse" method="post">
+
+                    <!-- IMPORTANT: controller added -->
+                    <form asp-controller="House" asp-action="CreateHouse" method="post">
                         @Html.AntiForgeryToken()
 
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
@@ -52,31 +55,30 @@
                             <span asp-validation-for="PricePerMonth" class="text-danger"></span>
                         </div>
 
-                        <!-- Category -->
-                         <div class="mb-3">
-                            <select asp-for="SelectedCategoryId" class="form-label">
-                                @foreach (var product in Model.Categories)
+                        <!-- Category (FIXED) -->
+                        <div class="mb-3">
+                            <label asp-for="SelectedCategoryId" class="form-label">Category</label>
+                            <select asp-for="SelectedCategoryId" class="form-control">
+                                @foreach (var category in Model.Categories)
                                 {
-                                    <option value="@product.Id">@product.Name</option>
+                                    <option value="@category.Id">@category.Name</option>
                                 }
-                            </select> 
-                        </div> 
-
-                        <!-- Agent -->
-                        @* <div class="mb-3">
-                            <label asp-for="AgentId" class="form-label"></label>
-                            <select asp-for="AgentId" asp-items="@Model.Agents" class="form-select">
-                                <option value="">-- Select Agent --</option>
                             </select>
-                            <span asp-validation-for="AgentId" class="text-danger"></span>
-                        </div> *@
+                            <span asp-validation-for="SelectedCategoryId" class="text-danger"></span>
+                        </div>
 
                         <!-- Buttons -->
                         <div class="mt-4">
                             <button type="submit" class="btn btn-primary">Create House</button>
-                            <a asp-controller="House" asp-action="AllHouses" class="btn btn-secondary">Cancel</a>
+
+                            <a asp-controller="House"
+                               asp-action="AllHouses"
+                               class="btn btn-secondary">
+                                Cancel
+                            </a>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -84,7 +86,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

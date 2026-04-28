@@ -19,22 +19,73 @@ namespace HouseRentingSystem.Controllers
             this.context = context;
         }
         [HttpGet]
-        public async Task<IActionResult> AllHouses()
+        public async Task<IActionResult> AllHouses([FromQuery] AllHousesQueryModel query)
         {
             var currentUsersId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var housesViewModel = await context.Houses
-            .AsNoTracking()
-            .Select(h => new HouseViewModel
+
+            if (query.CurrentPage < 1)
             {
-                Id = h.Id,
-                Name = h.Title,
-                Address = h.Address,
-                ImageUrl = h.ImageUrl,
-                CurentUserIsOwner = h.AgentId == currentUsersId
-            })
-            .ToListAsync();
+                query.CurrentPage = 1;
+            }
+
+            var housesQuery = context.Houses
+                .AsNoTracking()
+                .Where(h => h.IsDeleted == false)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.Category))
+            {
+                housesQuery = housesQuery
+                    .Where(h => h.Category.Name == query.Category);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.SearchTerm))
+            {
+                string search = query.SearchTerm.ToLower();
+
+                housesQuery = housesQuery.Where(h =>
+                    h.Title.ToLower().Contains(search) ||
+                    h.Address.ToLower().Contains(search) ||
+                    h.Description.ToLower().Contains(search));
+            }
+
+            housesQuery = query.Sorting switch
+            {
+                HouseSorting.Price => housesQuery.OrderBy(h => h.PricePerMonth),
+
+                HouseSorting.NotRentedFirst => housesQuery
+                    .OrderBy(h => h.RenterId != null)
+                    .ThenByDescending(h => h.Id),
+
+                _ => housesQuery.OrderByDescending(h => h.Id)
+            };
+
+            query.TotalHousesCount = await housesQuery.CountAsync();
+
+            query.Houses = await housesQuery
+                .Skip((query.CurrentPage - 1) * AllHousesQueryModel.HousesPerPage)
+                .Take(AllHousesQueryModel.HousesPerPage)
+                .Select(h => new HouseViewModel
+                {
+                    Id = h.Id,
+                    Name = h.Title,
+                    Address = h.Address,
+                    ImageUrl = h.ImageUrl,
+                    PricePerMonth = h.PricePerMonth,
+                    IsRented = h.RenterId != null,
+                    CurentUserIsOwner = h.AgentId == currentUsersId
+                })
+                .ToListAsync();
+
+            query.Categories = await context.Categories
+                .AsNoTracking()
+                .Select(c => c.Name)
+                .Distinct()
+                .ToListAsync();
+
             ViewBag.Title = "All houses";
-            return View(housesViewModel);
+
+            return View(query);
         }
         [HttpGet]
         public async Task<IActionResult> Details(int Id)
@@ -132,19 +183,30 @@ namespace HouseRentingSystem.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var houses = context.Houses
-                .Where(h => h.AgentId == userId)
+            var houses = await context.Houses
+                .AsNoTracking()
+                .Where(h => h.AgentId == userId && h.IsDeleted == false)
                 .Select(h => new HouseViewModel
                 {
                     Address = h.Address,
                     ImageUrl = h.ImageUrl,
                     Name = h.Title,
                     Id = h.Id,
+                    PricePerMonth = h.PricePerMonth,
+                    IsRented = h.RenterId != null,
                     CurentUserIsOwner = true
                 })
                 .ToListAsync();
+
+            var model = new AllHousesQueryModel
+            {
+                Houses = houses,
+                TotalHousesCount = houses.Count
+            };
+
             ViewBag.Title = "My houses";
-            return View(nameof(AllHouses), houses);
+
+            return View(nameof(AllHouses), model);
         }
     }
 }
