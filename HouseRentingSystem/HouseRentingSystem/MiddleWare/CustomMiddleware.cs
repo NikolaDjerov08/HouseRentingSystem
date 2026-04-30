@@ -11,7 +11,7 @@ namespace HouseRentingSystem.MiddleWare
         {
             this.next = next;
         }
-        public async Task InvokeAsync(HttpContext httpContext, HouseRentingDbContext ctx, IConfiguration config) //IConfiguration
+        public async Task InvokeAsync(HttpContext httpContext, HouseRentingDbContext ctx, IConfiguration config) 
         {
             var housesCount = await ctx.Houses.CountAsync();
             Console.WriteLine();
