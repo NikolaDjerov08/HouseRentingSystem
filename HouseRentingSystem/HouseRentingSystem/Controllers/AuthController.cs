@@ -9,17 +9,20 @@ namespace HouseRentingSystem.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
+
         public AuthController(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
         }
+
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
@@ -27,10 +30,19 @@ namespace HouseRentingSystem.Controllers
             {
                 return View(model);
             }
-            var user = await userManager.FindByEmailAsync(model.Email);
+
+            // Find user by username first
+            var user = await userManager.FindByNameAsync(model.Username);
+
+            // If not found by username, try by email
+            if (user == null && !string.IsNullOrEmpty(model.Email))
+            {
+                user = await userManager.FindByEmailAsync(model.Email);
+            }
+
             if (user == null)
             {
-                //ModelState.AddModelError();
+                ModelState.AddModelError("", "Invalid login attempt");
                 return View(model);
             }
 
@@ -40,6 +52,8 @@ namespace HouseRentingSystem.Controllers
                 await signInManager.SignInAsync(user, model.RememberMe);
                 return RedirectToAction("Index", "Home");
             }
+
+            ModelState.AddModelError("", "Invalid login attempt");
             return View(model);
         }
 
@@ -48,6 +62,7 @@ namespace HouseRentingSystem.Controllers
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -55,6 +70,7 @@ namespace HouseRentingSystem.Controllers
             {
                 return View(model);
             }
+
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user != null)
             {
@@ -73,6 +89,7 @@ namespace HouseRentingSystem.Controllers
             {
                 return RedirectToAction(nameof(Login));
             }
+
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);

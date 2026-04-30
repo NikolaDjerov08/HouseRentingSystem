@@ -1,26 +1,58 @@
+using HouseRentingSystem.Data.Data;
 using HouseRentingSystem.Models;
+using HouseRentingSystem.Models.House;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace HouseRentingSystem.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly HouseRentingDbContext context;
+
+        public HomeController(HouseRentingDbContext context)
         {
-            return View();
+            this.context = context;
         }
 
-        public IActionResult Error(int statusCode)
+        public async Task<IActionResult> Index()
         {
-            if (statusCode == 401 || statusCode == 404)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var model = new HomeViewModel
             {
-                ViewBag.StatusCode = statusCode;
-                return View("ErrorStatus");
+                IsAuthenticated = User.Identity.IsAuthenticated
+            };
+
+            if (User.Identity.IsAuthenticated && !string.IsNullOrEmpty(userId))
+            {
+                model.UserHousesCount = await context.Houses
+                    .CountAsync(h => h.AgentId == userId && h.IsDeleted == false);
             }
 
-            // fallback (still needed for stability)
-            return View("ErrorStatus");
+            return View(model);
+        }
+
+        [Route("Home/Error")]
+        public IActionResult Error(int? statusCode)
+        {
+            if (statusCode.HasValue)
+            {
+                switch (statusCode.Value)
+                {
+                    case 401:
+                        return View("Error401");
+                    case 404:
+                        return View("Error404");
+                }
+            }
+            return View("Error404");
+        }
+
+        public IActionResult ServerError()
+        {
+            return View("Error500");
         }
     }
 }

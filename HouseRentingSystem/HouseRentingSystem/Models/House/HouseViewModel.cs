@@ -3,17 +3,9 @@
     public class HouseViewModel
     {
         public int Id { get; set; }
-
-        public string Name { get; set; } = null!;
-
-        public string Address { get; set; } = null!;
-
-        public string ImageUrl { get; set; } = null!;
-
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public string ImageUrl { get; set; }
         public bool CurentUserIsOwner { get; set; }
-
-        public decimal PricePerMonth { get; set; }
-
-        public bool IsRented { get; set; }
     }
 }
