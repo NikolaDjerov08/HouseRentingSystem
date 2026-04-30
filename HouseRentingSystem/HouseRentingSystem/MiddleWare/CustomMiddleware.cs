@@ -1,4 +1,5 @@
 ﻿using HouseRentingSystem.Data.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace HouseRentingSystem.MiddleWare
