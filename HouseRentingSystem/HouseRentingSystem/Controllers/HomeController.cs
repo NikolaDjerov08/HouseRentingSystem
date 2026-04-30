@@ -10,45 +10,24 @@ namespace HouseRentingSystem.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly HouseRentingDbContext context;
-        public HomeController(HouseRentingDbContext context)
+        public IActionResult Index()
         {
-            this.context = context;
+            return View();
         }
-        public async Task<IActionResult> Index()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var model = new HomeViewModel
-            {
-                IsAuthenticated = User.Identity.IsAuthenticated
-            };
-            if (User.Identity.IsAuthenticated && !string.IsNullOrEmpty(userId))
-            {
-                model.UserHousesCount = await context.Houses
-                    .CountAsync(h => h.AgentId == userId && h.IsDeleted == false);
-            }
-
-            return View(model);
-        }
-        [Route("Home/Error")]
-        public IActionResult Error(int? statusCode)
-        {
-            if (statusCode.HasValue)
-            {
-                switch (statusCode.Value)
-                {
-                    case 401:
-                        return View("Error401");
-                    case 404:
-                        return View("Error404");
-                }
-            }
-            return View("Error404");
-        }
-        public IActionResult ServerError()
+        public IActionResult Error()
         {
             return View("Error500");
+        }
+
+        public IActionResult StatusCodeHandler(int statusCode)
+        {
+            ViewBag.StatusCode = statusCode;
+
+            if (statusCode == 401 || statusCode == 404)
+            {
+                return View("ErrorStatus");
+            }
+            return View("ErrorStatus");
         }
     }
 }

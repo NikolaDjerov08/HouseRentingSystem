@@ -1,6 +1,13 @@
+using HouseRentingSystem.Data.Data.Entities;
+using HouseRentingSystem.Data.Data;
 using HouseRentingSystem.MiddleWare;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using System.Diagnostics;
+using HouseRentingSystem.Services;
+using House_renting_system_service.Contracts;
+using House_renting_system_service.Implemetations;
 
 namespace HouseRentingSystem
 {
@@ -9,46 +16,67 @@ namespace HouseRentingSystem
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Add services to the container.
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            builder.Services.AddDbContext<HouseRentingDbContext>(opt => opt.UseSqlServer(connectionString));
+
+
+
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
+                opt =>
+                {
+                    opt.User.RequireUniqueEmail = true;
+                    opt.Password.RequireNonAlphanumeric = false;
+                    opt.Password.RequiredLength = 6;
+                    opt.Password.RequireLowercase = false;
+                    opt.Password.RequireUppercase = false;
+                    opt.SignIn.RequireConfirmedEmail = false;
+                }
+            )
+                .AddEntityFrameworkStores<HouseRentingDbContext>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Auth/Login";
+                options.AccessDeniedPath = "/User/AccessDenied";
+            });
+
             builder.Services.AddControllersWithViews();
+            builder.Services.AddScoped<IHouseService, HouseService>();
             var app = builder.Build();
-            app.UseMiddleware<TimeMiddleware>();
-            if (!app.Environment.IsDevelopment())
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-            app.UseHttpsRedirection();
-            app.UseRouting();
-            app.UseStaticFiles();
+                app.UseDeveloperExceptionPage();
 
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-
-            app.Run();
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Home/Error?statusCode=500"); 
-                app.UseStatusCodePagesWithRedirects("/Home/Error?statusCode={0}");
             }
             else
             {
-                app.UseDeveloperExceptionPage();
+                app.UseExceptionHandler("/Home/Error");
+                app.UseStatusCodePagesWithReExecute("/Home/StatusCodeHandler", "?statusCode={0}");
+                app.UseHsts();
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
-
             app.UseRouting();
+            app.Use(async (context, next) =>
+            {
+                var path = context.Request.Path;
+                Console.WriteLine(path);
+                await next();
 
+                var statusCode = context.Response.StatusCode;
+                Console.WriteLine(statusCode);
+            });
+            app.UseCustom();
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseStaticFiles();
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
