@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using HouseSorting = HouseRentingSystem.Models.House.HouseSorting;
 
 namespace HouseRentingSystem.Controllers
 {

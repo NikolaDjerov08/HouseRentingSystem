@@ -9,6 +9,6 @@ namespace House_renting_system_service.Contracts
 {
     public interface IHouseService
     {
-        async Task<IEnumerable<HouseViewModel>> GetHousesByUserId(string userId);
+        async Task<IEnumerable<HouseViewModel>> GetHouseUserById(string userId);
     }
 }

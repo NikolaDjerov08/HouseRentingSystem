@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HouseRenting.Data\HouseRentingSystem.Data.csproj" />
+    <ProjectReference Include="..\House_renting_system_service\House_renting_system_service.csproj" />
   </ItemGroup>
 
 </Project>

@@ -13,6 +13,10 @@ namespace HouseRentingSystem.Data.Data
 {
     public class HouseRentingDbContext : IdentityDbContext
     {
+        public HouseRentingDbContext()
+        {
+
+        }
         public HouseRentingDbContext
             (DbContextOptions<HouseRentingDbContext> options) : base(options)
         {
